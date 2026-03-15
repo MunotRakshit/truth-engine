@@ -13,6 +13,16 @@ from app.models import DocumentChunk
 logger = logging.getLogger(__name__)
 
 
+def _read_text_file(path: Path) -> str:
+    """Read a text file with encoding fallback."""
+    for encoding in ("utf-8", "utf-8-sig", "latin-1", "cp1252"):
+        try:
+            return path.read_text(encoding=encoding)
+        except (UnicodeDecodeError, ValueError):
+            continue
+    return path.read_text(encoding="utf-8", errors="replace")
+
+
 def parse_pdf(file_path: str) -> list[DocumentChunk]:
     """Parse PDF and plain-text files into DocumentChunks.
 
@@ -26,7 +36,7 @@ def parse_pdf(file_path: str) -> list[DocumentChunk]:
     chunks: list[DocumentChunk] = []
 
     if path.suffix.lower() == ".txt":
-        text = path.read_text(encoding="utf-8")
+        text = _read_text_file(path)
         if not text.strip():
             logger.warning("Empty text file: %s", file_path)
             return []
@@ -49,7 +59,13 @@ def parse_pdf(file_path: str) -> list[DocumentChunk]:
         return chunks
 
     # PDF path
-    with pdfplumber.open(file_path) as pdf:
+    try:
+        pdf = pdfplumber.open(file_path)
+    except Exception as e:
+        logger.error("Failed to open PDF %s: %s", file_path, e)
+        return []
+
+    with pdf:
         for page_num, page in enumerate(pdf.pages, start=1):
             page_text_parts: list[str] = []
 
@@ -95,7 +111,7 @@ def parse_json_csv(file_path: str) -> list[DocumentChunk]:
     chunks: list[DocumentChunk] = []
 
     if path.suffix.lower() == ".json":
-        raw = path.read_text(encoding="utf-8")
+        raw = _read_text_file(path)
         if not raw.strip():
             logger.warning("Empty JSON file: %s", file_path)
             return []
@@ -144,19 +160,22 @@ def parse_json_csv(file_path: str) -> list[DocumentChunk]:
             )
 
     elif path.suffix.lower() == ".csv":
-        raw = path.read_text(encoding="utf-8")
+        raw = _read_text_file(path)
         if not raw.strip():
             logger.warning("Empty CSV file: %s", file_path)
             return []
 
         reader = csv.DictReader(raw.splitlines())
         for idx, row in enumerate(reader):
-            ticket_id = row.get("ticket_id", f"row-{idx}")
-            issue = row.get("issue", row.get("description", ""))
-            resolution = row.get("resolution", "")
+            ticket_id = row.get("ticket_id", row.get("id", f"row-{idx}"))
+            issue = row.get("issue", row.get("summary", row.get("description", "")))
+            description = row.get("description", "")
+            resolution = row.get("resolution", row.get("fix_applied", ""))
             status = row.get("resolution_status", row.get("status", ""))
 
             content = f"Ticket {ticket_id}: {issue}"
+            if description and description != issue:
+                content += f". Details: {description}"
             if resolution:
                 content += f". Resolution: {resolution}"
             if status:
@@ -184,7 +203,7 @@ def parse_markdown(file_path: str) -> list[DocumentChunk]:
     """
     path = Path(file_path)
     filename = path.name
-    text = path.read_text(encoding="utf-8")
+    text = _read_text_file(path)
     if not text.strip():
         logger.warning("Empty markdown file: %s", file_path)
         return []
@@ -203,7 +222,7 @@ def parse_markdown(file_path: str) -> list[DocumentChunk]:
                 source_file=filename,
                 metadata={
                     "section_title": title,
-                    "header_hierarchy": hierarchy,
+                    "header_hierarchy": " > ".join(hierarchy),
                 },
             )
         )
