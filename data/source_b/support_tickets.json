@@ -1,0 +1,164 @@
+[
+  {
+    "ticket_id": "ST-1001",
+    "timestamp": "2025-11-15T10:30:00Z",
+    "engineer": "Alex Chen",
+    "issue": "Customer reported QF-001 (QPU Thermal Overload) on QFE-200 unit after 6 months of operation. Ambient temperature in server room measured at 22C, within spec. All fans operational.",
+    "resolution": "Replaced thermal paste on QPU-2 and QPU-3. Thermal paste had dried out prematurely, possibly due to a bad batch. After replacement, QPU temps dropped from 84C to 73C. System returned to normal operation.",
+    "resolution_status": "verified",
+    "related_error_code": "QF-001"
+  },
+  {
+    "ticket_id": "ST-1002",
+    "timestamp": "2025-11-18T14:15:00Z",
+    "engineer": "Priya Sharma",
+    "issue": "Customer experiencing intermittent QF-002 (Memory Allocation Failure) under moderate load. System has 256GB RAM, only 40% utilized according to OS. Running 12 concurrent processing threads.",
+    "resolution": "Found memory fragmentation issue in the arena allocator. Reduced gc_interval from 60s to 30s which allowed more frequent memory compaction. Also reduced buffer_size from 4096KB to 2048KB as a temporary workaround. Customer is now stable but should upgrade to QFE firmware 2.4.2 when available.",
+    "resolution_status": "experimental",
+    "related_error_code": "QF-002"
+  },
+  {
+    "ticket_id": "ST-1003",
+    "timestamp": "2025-11-22T09:00:00Z",
+    "engineer": "Alex Chen",
+    "issue": "QF-003 (Flux Capacitor Module Degradation) alert on QFE-100 unit. FCM health at 52%. Unit is 20 months old.",
+    "resolution": "Replaced the Flux Capacitor Module (Part: QF-FCM-2400) as per official procedure. Ran full three-step calibration and 24-hour burn-in test. All passed. Unit back in production.",
+    "resolution_status": "verified",
+    "related_error_code": "QF-003"
+  },
+  {
+    "ticket_id": "ST-1004",
+    "timestamp": "2025-11-25T16:45:00Z",
+    "engineer": "Marcus Johnson",
+    "issue": "Customer reports QF-003 on a QFE-200. FCM health at 58%. Customer wants to avoid the 2-4 hour downtime of full FCM replacement. Asks if there is a software workaround.",
+    "resolution": "EXPERIMENTAL: Instead of full FCM replacement, tried resetting the quantum buffer and recalibrating the FCM parameters using an undocumented command: qfctl fcm --reset-buffer --recalibrate. FCM health improved from 58% to 71%. This is NOT the official fix (manual says replace the FCM), but it bought the customer approximately 3 months before replacement will be needed. Scheduled FCM replacement for next quarterly maintenance window.",
+    "resolution_status": "experimental",
+    "related_error_code": "QF-003"
+  },
+  {
+    "ticket_id": "ST-1005",
+    "timestamp": "2025-12-01T08:20:00Z",
+    "engineer": "Priya Sharma",
+    "issue": "New QFE-300 installation. Customer reports warmup phase completed in only 5 minutes instead of the documented 10 minutes. System shows STATUS LED green but QPU temps are only at 68C, not the expected 75C.",
+    "resolution": "Investigated and found the customer had an older firmware (v2.3.1) installed that had a warmup bug. The firmware was cutting warmup short after 5 minutes. Updated firmware to v2.4.1 which correctly enforces the 10-minute warmup to 75C. Re-ran warmup and calibration. Customer confirmed 10-minute warmup now completes correctly.",
+    "resolution_status": "verified",
+    "related_error_code": null
+  },
+  {
+    "ticket_id": "ST-1006",
+    "timestamp": "2025-12-03T11:30:00Z",
+    "engineer": "Alex Chen",
+    "issue": "Customer on QFE-200 cluster (4 nodes) experiencing frequent QF-004 (Network Partition) alerts. Happening 2-3 times per day. No actual network issues visible on switches.",
+    "resolution": "Found that the cluster_port (9091) was being rate-limited by a recently deployed network security appliance. Worked with customer's network team to whitelist inter-cluster traffic. Also increased the cluster heartbeat timeout from 3s to 5s as a safety margin. Partitions stopped occurring.",
+    "resolution_status": "verified",
+    "related_error_code": "QF-004"
+  },
+  {
+    "ticket_id": "ST-1007",
+    "timestamp": "2025-12-05T15:00:00Z",
+    "engineer": "Marcus Johnson",
+    "issue": "QF-005 (Storage Subsystem Degraded) on QFE-300. Two drives showing SMART errors. RAID-10 still operational but degraded.",
+    "resolution": "Hot-swapped both failed drives (QF-SSD-2T). RAID rebuild started automatically. Took 4.5 hours for full rebuild. Performance was degraded approximately 35% during rebuild, slightly worse than the documented 30%. Customer was advised to avoid peak-load operations during rebuild. Post-rebuild, all checks passed.",
+    "resolution_status": "verified",
+    "related_error_code": "QF-005"
+  },
+  {
+    "ticket_id": "ST-1008",
+    "timestamp": "2025-12-08T09:45:00Z",
+    "engineer": "Priya Sharma",
+    "issue": "Customer attempting installation of new QFE-100. Reports that calibration Step 2 (Core Calibration) fails repeatedly with error: 'Lane 3 clock instability detected'. Other lanes pass.",
+    "resolution": "Remote diagnostics showed QPU Lane 3 had a manufacturing defect. RMA'd the QPU module. Replacement QPU installed and full calibration passed on first attempt. Total downtime: 3 days (shipping).",
+    "resolution_status": "verified",
+    "related_error_code": "QF-007"
+  },
+  {
+    "ticket_id": "ST-1009",
+    "timestamp": "2025-12-10T13:00:00Z",
+    "engineer": "Alex Chen",
+    "issue": "Customer asks about optimal max_threads setting for their QFE-200 running mixed workloads (70% stream processing, 30% batch). Currently at default of 16.",
+    "resolution": "Ran benchmarks on customer's workload profile. Found that max_threads=16 is indeed optimal for their mixed workload. Tested values of 8, 12, 16, 20, and 24. At 8 threads, throughput dropped 40%. At 12, dropped 15%. At 20, latency increased by 25% due to thread contention with no throughput gain. At 24, contention was severe. Recommended staying at 16.",
+    "resolution_status": "verified",
+    "related_error_code": null
+  },
+  {
+    "ticket_id": "ST-1010",
+    "timestamp": "2025-12-12T10:15:00Z",
+    "engineer": "Marcus Johnson",
+    "issue": "QF-008 (Data Integrity Failure) on QFE-200 after unexpected power loss. UPS failed to provide adequate battery backup. WAL was enabled.",
+    "resolution": "Ran full integrity check. Found 12 corrupted records in the processing pipeline. Restored from WAL checkpoint (lost approximately 45 seconds of data). Ran ECC memory check - no hardware issues. Recommended customer upgrade their UPS. Also verified that WAL configuration was set correctly. Data integrity verified after restoration.",
+    "resolution_status": "verified",
+    "related_error_code": "QF-008"
+  },
+  {
+    "ticket_id": "ST-1011",
+    "timestamp": "2025-12-15T16:30:00Z",
+    "engineer": "Priya Sharma",
+    "issue": "Customer wants to increase buffer_size to 8192KB for handling large JSON payloads (average 2MB per record). Currently at default 4096KB and seeing buffer overflow warnings.",
+    "resolution": "EXPERIMENTAL: Increased buffer_size to 8192KB and reduced max_threads to 12 to keep total buffer memory manageable (12 x 8192KB = 96MB). Overflow warnings stopped. However, this is not a standard configuration - manual recommends 4096KB max for most workloads. Monitoring for stability. Long-term fix should be to implement record chunking on the ingest side.",
+    "resolution_status": "experimental",
+    "related_error_code": null
+  },
+  {
+    "ticket_id": "ST-1012",
+    "timestamp": "2025-12-18T08:00:00Z",
+    "engineer": "Alex Chen",
+    "issue": "Customer reporting QF-003 on QFE-300 with 4 FCMs. Two FCMs showing health at 45% and 51%. Unit is 22 months old.",
+    "resolution": "Replaced both degraded FCMs (Part: QF-FCM-2400). The other two FCMs are at 78% and 82% health - should last another 6-12 months. Ran full calibration and 24-hour burn-in. All passed. Advised customer to budget for replacing the remaining two FCMs within the next two quarters.",
+    "resolution_status": "verified",
+    "related_error_code": "QF-003"
+  },
+  {
+    "ticket_id": "ST-1013",
+    "timestamp": "2025-12-20T14:00:00Z",
+    "engineer": "Marcus Johnson",
+    "issue": "Customer on QFE-100 asks about using ZSTD compression instead of default LZ4. They have CPU headroom but need better compression ratio for compliance data archival.",
+    "resolution": "Switched compression from LZ4 to ZSTD. Compression ratio improved from 2.1:1 to 3.4:1. CPU utilization increased from 45% to 62%, which is acceptable given their headroom. Throughput decreased by approximately 15% which is within their SLA. Customer accepted the tradeoff.",
+    "resolution_status": "verified",
+    "related_error_code": null
+  },
+  {
+    "ticket_id": "ST-1014",
+    "timestamp": "2025-12-22T11:30:00Z",
+    "engineer": "Priya Sharma",
+    "issue": "Customer reports that after replacing a failed QPU, the warmup phase now takes 12 minutes instead of the documented 10 minutes. They are concerned the replacement QPU is defective.",
+    "resolution": "Investigated and found that the new QPU (revision B silicon) has slightly different thermal characteristics. The 12-minute warmup is within acceptable tolerance (+/- 20% of the 10-minute nominal). The QPU reaches the correct operating temperature of 75C, just takes slightly longer. No action needed. Updated internal knowledge base that revision B silicon may have slightly longer warmup times.",
+    "resolution_status": "verified",
+    "related_error_code": null
+  },
+  {
+    "ticket_id": "ST-1015",
+    "timestamp": "2025-12-28T09:00:00Z",
+    "engineer": "Alex Chen",
+    "issue": "QF-003 alert on QFE-200. FCM health at 55%. Customer cannot schedule downtime for replacement for another 6 weeks due to end-of-year processing freeze.",
+    "resolution": "EXPERIMENTAL: Applied the quantum buffer reset workaround (qfctl fcm --reset-buffer --recalibrate) as in ticket ST-1004. FCM health improved to 68%. Also applied experimental FCM power throttling (qfctl fcm --power-mode conservative) to reduce stress on the degraded module. Combined approach should extend FCM life by approximately 2-3 months. Scheduled replacement for early February. NOTE: This is a temporary measure. The official fix per the manual is FCM replacement. Both the buffer reset and power throttling are experimental procedures not yet documented in the official manual.",
+    "resolution_status": "experimental",
+    "related_error_code": "QF-003"
+  },
+  {
+    "ticket_id": "ST-1016",
+    "timestamp": "2026-01-05T10:00:00Z",
+    "engineer": "Marcus Johnson",
+    "issue": "Customer asks whether they should use the old 2-step calibration or the new 3-step calibration after a firmware upgrade from v1.x to v2.4.",
+    "resolution": "Advised customer to use the 3-step calibration procedure as documented in the v2.4 technical manual (Section 4.4). The old 2-step calibration (which skipped I/O subsystem calibration) was deprecated in v2.0 and is no longer supported. Using the old procedure may leave the I/O subsystem uncalibrated, leading to intermittent data corruption. Ran the full 3-step calibration for the customer and verified all passed.",
+    "resolution_status": "verified",
+    "related_error_code": "QF-007"
+  },
+  {
+    "ticket_id": "ST-1017",
+    "timestamp": "2026-01-10T14:30:00Z",
+    "engineer": "Priya Sharma",
+    "issue": "Customer reports QF-003 on QFE-100. FCM health at 48%. Previous experimental fix (quantum buffer reset) from 3 months ago has worn off. FCM health declining faster now.",
+    "resolution": "EXPERIMENTAL: Tried the quantum buffer reset again but this time it only improved health from 48% to 53%. Also tried both the buffer reset AND FCM replacement in sequence: first reset the quantum buffer, then replaced the FCM module. The combination ensured zero data loss during the transition. Recommending this as a best practice for FCM replacements: reset buffer first to stabilize, then replace the module. Post-replacement calibration and burn-in all passed.",
+    "resolution_status": "experimental",
+    "related_error_code": "QF-003"
+  },
+  {
+    "ticket_id": "ST-1018",
+    "timestamp": "2026-01-15T09:00:00Z",
+    "engineer": "Alex Chen",
+    "issue": "New installation QFE-300. Customer is confused about warmup temperature. Their old wiki documentation says 65C but the manual says 75C. System warms up to 75C. Is this correct?",
+    "resolution": "Confirmed that 75C is the correct warmup/operating temperature as specified in the v2.4 technical manual. The 65C value was from the v1.x era when QPUs had different thermal characteristics. The wiki documentation is outdated and should be updated. Informed customer to disregard the wiki and follow the official technical manual.",
+    "resolution_status": "verified",
+    "related_error_code": null
+  }
+]

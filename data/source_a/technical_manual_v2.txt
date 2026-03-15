@@ -1,0 +1,1161 @@
+================================================================================
+                       QUANTUMFLOW ENGINE v2.4
+                     OFFICIAL TECHNICAL MANUAL
+                        Document ID: TM-QF-2024-v2
+                        Revision: 2.4.1
+                        Date: 2025-06-15
+                        Classification: Internal Use Only
+================================================================================
+
+TABLE OF CONTENTS
+-----------------
+1. Product Overview
+2. System Architecture
+3. Hardware Specifications
+4. Installation Procedure
+5. Configuration Reference
+6. Operating Procedures
+7. Troubleshooting Guide
+8. Safety Procedures
+9. Maintenance Schedule
+10. Appendix A: Error Code Reference
+11. Appendix B: Spare Parts List
+12. Appendix C: Glossary
+
+================================================================================
+SECTION 1: PRODUCT OVERVIEW
+================================================================================
+
+1.1 Introduction
+----------------
+The QuantumFlow Engine (QFE) is a high-performance data processing system
+designed for enterprise-grade real-time analytics and stream processing. Built
+on proprietary quantum-inspired parallel processing architecture, the QFE
+delivers sub-millisecond latency for complex data transformations while
+maintaining strict ACID compliance across distributed nodes.
+
+The QuantumFlow Engine is the flagship product of QuantumFlow Systems Inc.,
+representing over a decade of research in high-throughput data processing. The
+system combines hardware-accelerated computation units with a sophisticated
+software stack to achieve processing speeds that exceed conventional systems
+by a factor of 50x.
+
+1.2 Key Features
+----------------
+- Quantum-inspired parallel processing with up to 128 virtual cores
+- Real-time stream processing at up to 2.4 million events per second
+- Built-in data validation and integrity checking
+- Automatic failover with sub-second recovery time
+- Hardware-accelerated compression using LZ4 algorithm
+- Native support for JSON, Avro, Parquet, and Protocol Buffers
+- Role-based access control with LDAP/SAML integration
+- Comprehensive REST API for programmatic management
+- Real-time monitoring dashboard with Prometheus/Grafana integration
+- Hot-swappable processing modules for zero-downtime maintenance
+
+1.3 Product Variants
+--------------------
+The QuantumFlow Engine is available in three configurations:
+
+  QFE-100 (Standard):
+    - 16 processing cores
+    - 64 GB processing memory
+    - 2 TB NVMe storage
+    - Single-node deployment
+    - Up to 500K events/second
+
+  QFE-200 (Professional):
+    - 64 processing cores
+    - 256 GB processing memory
+    - 8 TB NVMe storage (RAID-10)
+    - Up to 4-node cluster
+    - Up to 1.2M events/second
+
+  QFE-300 (Enterprise):
+    - 128 processing cores
+    - 512 GB processing memory
+    - 32 TB NVMe storage (RAID-10)
+    - Up to 16-node cluster
+    - Up to 2.4M events/second
+    - Includes dedicated support engineer
+
+1.4 System Requirements
+-----------------------
+Minimum requirements for hosting the QuantumFlow Engine:
+
+  Operating Environment:
+    - Temperature: 18-24 degrees Celsius (64-75 degrees Fahrenheit)
+    - Humidity: 40-60% relative humidity (non-condensing)
+    - Altitude: Below 3000 meters (10,000 feet)
+    - Vibration: Less than 0.5G sustained
+
+  Power Requirements:
+    - Input Voltage: 200-240V AC, 50/60 Hz
+    - Power Consumption: 2.4 kW (QFE-100), 4.8 kW (QFE-200), 9.6 kW (QFE-300)
+    - UPS Required: Minimum 15-minute battery backup
+
+  Network Requirements:
+    - Minimum 10 Gbps Ethernet per node
+    - Dedicated management network (1 Gbps minimum)
+    - Maximum inter-node latency: 0.5 ms
+
+1.5 Regulatory Compliance
+-------------------------
+The QuantumFlow Engine is certified under the following standards:
+  - ISO 27001 (Information Security)
+  - SOC 2 Type II
+  - GDPR compliant data processing
+  - FedRAMP Moderate (QFE-300 only)
+
+================================================================================
+SECTION 2: SYSTEM ARCHITECTURE
+================================================================================
+
+2.1 Architecture Overview
+-------------------------
+The QuantumFlow Engine employs a layered architecture consisting of:
+
+  Layer 1 - Hardware Abstraction Layer (HAL):
+    Provides direct access to the quantum-inspired processing units (QPUs),
+    memory controllers, and I/O subsystems. The HAL manages thermal regulation,
+    power distribution, and hardware health monitoring.
+
+  Layer 2 - Core Processing Engine (CPE):
+    Implements the parallel processing algorithms that form the heart of the
+    QuantumFlow system. The CPE manages task scheduling, memory allocation,
+    and inter-core communication using a proprietary lock-free protocol.
+
+  Layer 3 - Data Management Layer (DML):
+    Handles data ingestion, transformation, and output. Includes the stream
+    processor, batch processor, and the unified query engine. The DML supports
+    both push and pull data delivery models.
+
+  Layer 4 - Application Services Layer (ASL):
+    Provides REST APIs, monitoring endpoints, authentication services, and
+    the management console. This layer also includes the plugin framework
+    for custom extensions.
+
+2.2 Processing Pipeline
+-----------------------
+Data flows through the QuantumFlow Engine in the following sequence:
+
+  1. Ingestion: Data arrives via REST API, Kafka connector, or direct TCP
+  2. Validation: Schema validation and data quality checks
+  3. Buffering: Data is buffered in the ring buffer (configurable size)
+  4. Processing: QPUs execute transformation logic in parallel
+  5. Aggregation: Results are collected and merged
+  6. Output: Processed data is written to configured sinks
+  7. Acknowledgment: Source systems receive completion confirmation
+
+2.3 Cluster Architecture
+------------------------
+In multi-node deployments, the QuantumFlow Engine uses a leader-follower
+architecture:
+
+  - One node is elected as the cluster leader (automatic election)
+  - The leader manages partition assignment and rebalancing
+  - Follower nodes process their assigned data partitions
+  - State is replicated synchronously to at least one follower
+  - If the leader fails, a new leader is elected within 800ms
+
+2.4 Memory Management
+---------------------
+The QuantumFlow Engine uses a custom memory allocator optimized for
+streaming workloads:
+
+  - Arena-based allocation for request-scoped data
+  - Slab allocator for fixed-size objects (buffers, headers)
+  - Off-heap storage for large objects (> 64KB)
+  - Automatic memory pressure detection and back-pressure signaling
+
+================================================================================
+SECTION 3: HARDWARE SPECIFICATIONS
+================================================================================
+
+3.1 Chassis Specifications
+--------------------------
+  Dimensions: 4U rack-mount (QFE-100/200), 8U rack-mount (QFE-300)
+  Weight: 18 kg (QFE-100), 32 kg (QFE-200), 58 kg (QFE-300)
+  Material: Anodized aluminum with steel reinforcement
+  Cooling: Dual redundant fans with variable speed control
+  Noise Level: 55 dBA at 1 meter (maximum load)
+
+3.2 Front Panel Indicators
+---------------------------
+  POWER (Green):       System powered on
+  STATUS (Green):      Normal operation
+  STATUS (Amber):      Warning condition - check logs
+  STATUS (Red):        Critical error - immediate attention required
+  NETWORK (Green):     Network link active
+  NETWORK (Blinking):  Network activity
+  DISK (Green):        Storage healthy
+  DISK (Red):          Storage degraded - replace failed drive
+  TEMP (Amber):        Temperature warning (> 70 degrees Celsius)
+  TEMP (Red):          Temperature critical (> 85 degrees Celsius)
+
+3.3 Rear Panel Connections
+--------------------------
+  - 4x 10GbE SFP+ ports (data network)
+  - 2x 1GbE RJ45 ports (management network)
+  - 1x RS-232 serial console port
+  - 1x USB 3.0 port (diagnostics only)
+  - 2x redundant power supply connections (C14 inlet)
+  - 1x IPMI/BMC management port
+
+3.4 Processing Unit Specifications
+-----------------------------------
+Each Quantum Processing Unit (QPU) contains:
+  - 8 parallel execution lanes
+  - 4 MB L2 cache per lane
+  - Hardware-accelerated LZ4 compression engine
+  - Dedicated DMA controller for zero-copy I/O
+  - Clock speed: 3.2 GHz base, 4.1 GHz boost
+
+================================================================================
+SECTION 4: INSTALLATION PROCEDURE
+================================================================================
+
+4.1 Pre-Installation Checklist
+------------------------------
+Before beginning installation, verify the following:
+
+  [ ] Rack space available (4U for QFE-100/200, 8U for QFE-300)
+  [ ] Power circuits provisioned (see Section 1.4)
+  [ ] Network cabling in place (10GbE minimum for data ports)
+  [ ] Management network configured
+  [ ] Ambient temperature within specification (18-24 degrees Celsius)
+  [ ] Anti-static mat and wrist strap available
+  [ ] Torque wrench available (required for mounting bolts)
+  [ ] Installation technician has completed QFE certification training
+
+4.2 Physical Installation
+-------------------------
+Step 1: Mount the rail kit in the rack using the provided cage nuts and
+        mounting screws. Tighten all screws to 3.5 Nm using a torque wrench.
+
+Step 2: Slide the QuantumFlow Engine chassis onto the rails. Ensure the
+        chassis clicks into the locked position.
+
+Step 3: Secure the chassis to the rack using the front mounting bolts.
+        Tighten each bolt to exactly 45 Nm using a calibrated torque wrench.
+        WARNING: Over-torquing may damage the chassis mounting points.
+        Under-torquing may result in chassis vibration and component damage.
+
+Step 4: Connect redundant power cables to both power supply units. Verify
+        that both PSU indicator LEDs illuminate green.
+
+Step 5: Connect data network cables to at least two SFP+ ports for redundancy.
+        Connect the management network cable to the MGMT port.
+
+Step 6: Connect the serial console cable for initial configuration.
+
+4.3 Initial Power-On and Warmup Procedure
+------------------------------------------
+IMPORTANT: The QuantumFlow Engine requires a mandatory warmup period before
+it can begin processing data. This warmup period is essential for the QPUs
+to reach optimal operating temperature and for the self-calibration routines
+to complete.
+
+Step 1: Turn on the main power switch located on the rear panel.
+        The POWER LED will illuminate green.
+
+Step 2: Wait for the POST (Power-On Self-Test) to complete. The STATUS LED
+        will blink amber during POST (approximately 90 seconds).
+
+Step 3: Once POST completes, the STATUS LED will turn solid amber, indicating
+        the warmup phase has begun.
+
+Step 4: The warmup phase takes exactly 10 MINUTES. During this time, the
+        QPUs will gradually increase to the operating temperature of
+        75 DEGREES CELSIUS. DO NOT attempt to send data to the system during
+        warmup. The system will reject all processing requests until warmup
+        is complete.
+
+        CRITICAL: The 10-minute warmup at 75 degrees Celsius is mandatory.
+        Attempting to bypass the warmup (e.g., by sending override commands)
+        will void the warranty and may cause permanent QPU damage.
+
+Step 5: When warmup completes, the STATUS LED will turn solid green.
+        The serial console will display: "QUANTUMFLOW ENGINE READY"
+
+Step 6: Verify the operating temperature is stable at 75 degrees Celsius
+        (+/- 2 degrees) by running the diagnostic command:
+          $ qfctl diagnostics --thermal
+        Expected output: "QPU Thermal Status: NOMINAL (75.0C +/- 0.3C)"
+
+4.4 Three-Step Calibration Procedure
+--------------------------------------
+After the warmup phase completes, you MUST perform the three-step calibration
+procedure before the system can be placed into production service.
+
+CALIBRATION STEP 1: Memory Subsystem Calibration
+  a) From the serial console, execute:
+       $ qfctl calibrate --subsystem memory
+  b) The system will run memory timing calibration across all DIMMs.
+  c) Expected duration: 3-5 minutes
+  d) Success message: "Memory calibration PASSED - all timings within spec"
+  e) If calibration fails, check error code and refer to Section 7.
+
+CALIBRATION STEP 2: Processing Core Calibration
+  a) Execute:
+       $ qfctl calibrate --subsystem cores
+  b) The system will test all QPU execution lanes and verify clock stability.
+  c) Expected duration: 5-8 minutes
+  d) Success message: "Core calibration PASSED - all lanes operational"
+  e) During this step, QPU temperatures may briefly spike to 82 degrees
+     Celsius. This is normal and expected.
+
+CALIBRATION STEP 3: I/O Subsystem Calibration
+  a) Execute:
+       $ qfctl calibrate --subsystem io
+  b) The system will test all network interfaces, storage controllers,
+     and DMA channels.
+  c) Expected duration: 2-3 minutes
+  d) Success message: "I/O calibration PASSED - all channels verified"
+  e) Ensure all network cables are connected before running this step.
+
+After all three calibration steps complete successfully, execute the
+final verification:
+  $ qfctl calibrate --verify-all
+
+Expected output:
+  "Full system calibration VERIFIED
+   Memory: PASS
+   Cores: PASS
+   I/O: PASS
+   System is ready for production workloads."
+
+NOTE: If any calibration step fails, DO NOT proceed to production. Refer
+to the troubleshooting guide in Section 7 for the specific error code.
+
+4.5 Network Configuration
+--------------------------
+After calibration, configure the network settings:
+
+  a) Set the management IP address:
+       $ qfctl network set-mgmt --ip 10.0.1.100 --mask 255.255.255.0 --gw 10.0.1.1
+
+  b) Configure the data network interfaces:
+       $ qfctl network set-data --port 1 --ip 10.1.0.100 --mask 255.255.255.0
+       $ qfctl network set-data --port 2 --ip 10.1.0.101 --mask 255.255.255.0
+
+  c) For cluster deployments, configure the cluster network:
+       $ qfctl cluster init --cluster-name prod-cluster --node-id 1
+
+  d) Verify network connectivity:
+       $ qfctl network test --all
+     Expected output: "All network interfaces operational"
+
+4.6 Software License Activation
+--------------------------------
+The QuantumFlow Engine requires a valid license to operate:
+
+  a) Retrieve the hardware ID:
+       $ qfctl license show-hwid
+
+  b) Submit the hardware ID to the QuantumFlow licensing portal at
+     https://licensing.quantumflow.example.com
+
+  c) Download the license file and apply it:
+       $ qfctl license apply --file /path/to/license.qfl
+
+  d) Verify the license:
+       $ qfctl license verify
+     Expected output: "License valid. Expiry: [date]. Edition: [variant]"
+
+================================================================================
+SECTION 5: CONFIGURATION REFERENCE
+================================================================================
+
+5.1 Configuration File Location
+--------------------------------
+The primary configuration file is located at:
+  /etc/quantumflow/qfengine.conf
+
+A backup of the default configuration is maintained at:
+  /etc/quantumflow/qfengine.conf.default
+
+Configuration changes require a service restart unless otherwise noted.
+Use the following command to apply changes:
+  $ qfctl config reload
+
+5.2 Core Processing Parameters
+-------------------------------
+The following parameters control the core processing behavior:
+
+  max_threads = 16
+    Description: Maximum number of concurrent processing threads per QPU.
+    Valid range: 1-32
+    Default: 16
+    NOTE: Setting this above 16 on QFE-100 models may cause thread
+    contention. For QFE-200 and QFE-300, values up to 32 are supported.
+    IMPORTANT: The recommended value for all production deployments is 16.
+    This value has been determined through extensive benchmarking to provide
+    the optimal balance between throughput and latency.
+
+  buffer_size = 4096KB
+    Description: Size of the ring buffer used for data ingestion.
+    Valid range: 512KB - 16384KB
+    Default: 4096KB
+    NOTE: The buffer size directly affects memory consumption. Each
+    processing thread allocates one buffer, so total buffer memory is
+    max_threads * buffer_size. At the default settings (16 threads x
+    4096KB), this is 64MB.
+    IMPORTANT: The recommended buffer size for production is 4096KB.
+    Smaller values may cause buffer overflow under heavy load. Larger
+    values increase memory usage without proportional throughput gains.
+
+  timeout = 30s
+    Description: Maximum time allowed for a single processing operation.
+    Valid range: 5s - 300s
+    Default: 30s
+    NOTE: Operations exceeding this timeout will be terminated and the
+    data will be moved to the dead-letter queue for manual review.
+
+  compression = LZ4
+    Description: Compression algorithm used for data at rest and in transit.
+    Valid options: NONE, LZ4, ZSTD, SNAPPY
+    Default: LZ4
+    NOTE: LZ4 is recommended for its optimal balance of compression ratio
+    and CPU overhead. ZSTD provides better compression but at 3x CPU cost.
+
+  max_batch_size = 1000
+    Description: Maximum number of records processed in a single batch.
+    Valid range: 100 - 10000
+    Default: 1000
+
+  queue_depth = 256
+    Description: Maximum number of pending batches in the processing queue.
+    Valid range: 16 - 1024
+    Default: 256
+
+5.3 Network Parameters
+-----------------------
+  listen_address = 0.0.0.0
+    Description: IP address to bind the data processing API.
+    Default: 0.0.0.0 (all interfaces)
+
+  api_port = 8080
+    Description: TCP port for the REST API.
+    Default: 8080
+
+  data_port = 9090
+    Description: TCP port for the high-performance data ingestion endpoint.
+    Default: 9090
+
+  cluster_port = 9091
+    Description: TCP port for inter-node cluster communication.
+    Default: 9091
+
+  tls_enabled = true
+    Description: Enable TLS encryption for all network communication.
+    Default: true
+    NOTE: TLS is mandatory for production deployments.
+
+  tls_cert_path = /etc/quantumflow/certs/server.crt
+  tls_key_path = /etc/quantumflow/certs/server.key
+  tls_ca_path = /etc/quantumflow/certs/ca.crt
+
+5.4 Storage Parameters
+-----------------------
+  data_dir = /var/lib/quantumflow/data
+    Description: Directory for persistent data storage.
+
+  log_dir = /var/log/quantumflow
+    Description: Directory for system logs.
+
+  log_level = INFO
+    Description: Logging verbosity level.
+    Valid options: DEBUG, INFO, WARN, ERROR
+    Default: INFO
+
+  log_rotation_size = 100MB
+    Description: Maximum log file size before rotation.
+
+  log_retention_days = 30
+    Description: Number of days to retain log files.
+
+  wal_enabled = true
+    Description: Enable Write-Ahead Logging for crash recovery.
+    Default: true
+    WARNING: Disabling WAL may result in data loss during unplanned shutdowns.
+
+5.5 Monitoring Parameters
+--------------------------
+  metrics_enabled = true
+    Description: Enable Prometheus metrics endpoint.
+    Default: true
+
+  metrics_port = 9100
+    Description: TCP port for the Prometheus metrics endpoint.
+    Default: 9100
+
+  health_check_interval = 10s
+    Description: Interval between internal health checks.
+    Default: 10s
+
+  alert_email = ops@example.com
+    Description: Email address for critical alerts.
+
+5.6 Security Parameters
+------------------------
+  auth_enabled = true
+    Description: Enable authentication for API access.
+    Default: true
+
+  auth_provider = LDAP
+    Description: Authentication provider.
+    Valid options: LOCAL, LDAP, SAML
+    Default: LDAP
+
+  session_timeout = 3600s
+    Description: API session timeout.
+    Default: 3600s (1 hour)
+
+  max_failed_logins = 5
+    Description: Maximum failed login attempts before account lockout.
+    Default: 5
+
+  lockout_duration = 300s
+    Description: Duration of account lockout after max failed attempts.
+    Default: 300s (5 minutes)
+
+5.7 Advanced Tuning Parameters
+-------------------------------
+  gc_interval = 60s
+    Description: Garbage collection interval for the memory manager.
+    Default: 60s
+
+  prefetch_enabled = true
+    Description: Enable data prefetching for improved throughput.
+    Default: true
+
+  numa_aware = true
+    Description: Enable NUMA-aware memory allocation.
+    Default: true
+    NOTE: Only effective on multi-socket systems.
+
+  io_threads = 4
+    Description: Number of dedicated I/O threads.
+    Valid range: 1-16
+    Default: 4
+
+  zero_copy = true
+    Description: Enable zero-copy data transfer where possible.
+    Default: true
+
+================================================================================
+SECTION 6: OPERATING PROCEDURES
+================================================================================
+
+6.1 Starting the QuantumFlow Engine
+-------------------------------------
+To start the QuantumFlow Engine service:
+  $ qfctl service start
+
+The system will perform a quick self-test (approximately 30 seconds) and
+then begin accepting processing requests. Monitor the startup sequence:
+  $ qfctl service status
+
+Expected output:
+  "QuantumFlow Engine v2.4.1
+   Status: RUNNING
+   Uptime: [duration]
+   QPU Temperature: 75.0C
+   Processing Threads: 16/16 active
+   Memory Usage: 2.1 GB / 64 GB
+   Network: All interfaces UP"
+
+6.2 Stopping the QuantumFlow Engine
+-------------------------------------
+IMPORTANT: Always use the graceful shutdown procedure:
+
+  $ qfctl service stop --graceful
+
+This command will:
+  1. Stop accepting new processing requests
+  2. Complete all in-flight processing operations
+  3. Flush all buffers to persistent storage
+  4. Sync the Write-Ahead Log
+  5. Shut down processing threads
+  6. Power down QPUs gracefully
+
+The graceful shutdown typically takes 30-60 seconds depending on the
+current workload. DO NOT power off the system without performing a
+graceful shutdown, as this may result in data corruption.
+
+For emergency shutdown (use ONLY when system is unresponsive):
+  $ qfctl service stop --force
+
+6.3 Submitting Processing Jobs
+-------------------------------
+Via REST API:
+  POST /api/v2/jobs
+  Content-Type: application/json
+  {
+    "job_name": "example-job",
+    "source": "kafka://broker:9092/input-topic",
+    "sink": "kafka://broker:9092/output-topic",
+    "transform": "SELECT *, UPPER(name) AS name_upper FROM input",
+    "parallelism": 8
+  }
+
+Via CLI:
+  $ qfctl job submit --name example-job \
+      --source kafka://broker:9092/input-topic \
+      --sink kafka://broker:9092/output-topic \
+      --transform "SELECT *, UPPER(name) AS name_upper FROM input" \
+      --parallelism 8
+
+6.4 Monitoring Processing Jobs
+-------------------------------
+List all running jobs:
+  $ qfctl job list
+
+Get details for a specific job:
+  $ qfctl job status --id JOB-12345
+
+View real-time processing metrics:
+  $ qfctl metrics live --job JOB-12345
+
+6.5 Cluster Management
+-----------------------
+Add a new node to the cluster:
+  $ qfctl cluster add-node --address 10.1.0.102 --role follower
+
+Remove a node from the cluster:
+  $ qfctl cluster remove-node --node-id 3 --graceful
+
+Check cluster health:
+  $ qfctl cluster health
+
+Trigger manual rebalancing:
+  $ qfctl cluster rebalance
+
+================================================================================
+SECTION 7: TROUBLESHOOTING GUIDE
+================================================================================
+
+7.1 General Troubleshooting Approach
+--------------------------------------
+When encountering issues with the QuantumFlow Engine, follow this diagnostic
+procedure:
+
+  1. Check the system status: $ qfctl service status
+  2. Review recent logs: $ qfctl logs --tail 100
+  3. Check hardware health: $ qfctl diagnostics --full
+  4. Identify the error code from logs or status output
+  5. Look up the error code in the reference table below
+  6. Follow the prescribed resolution procedure
+
+7.2 Error Code Reference Table
+-------------------------------
+
+ERROR CODE: QF-001
+  Name: QPU Thermal Overload
+  Severity: CRITICAL
+  Description: One or more QPUs have exceeded the maximum operating
+    temperature of 85 degrees Celsius.
+  Likely Causes:
+    - Blocked air vents or failed cooling fans
+    - Ambient temperature exceeds specification (> 24 degrees Celsius)
+    - Excessive sustained load without adequate cooling
+  Official Resolution:
+    1. Immediately reduce processing load by pausing non-critical jobs:
+         $ qfctl job pause --all --priority below-high
+    2. Check fan status: $ qfctl diagnostics --fans
+    3. If fans have failed, initiate graceful shutdown and replace fans.
+    4. Verify ambient temperature is within specification.
+    5. If the issue persists after fan replacement, contact QuantumFlow
+       Support for QPU inspection.
+  Recovery Time: 15-30 minutes after thermal normalization
+
+ERROR CODE: QF-002
+  Name: Memory Allocation Failure
+  Severity: HIGH
+  Description: The memory manager was unable to allocate requested memory
+    for a processing operation.
+  Likely Causes:
+    - Memory leak in a custom transformation plugin
+    - buffer_size configured too large for available memory
+    - Too many concurrent processing threads
+  Official Resolution:
+    1. Check memory usage: $ qfctl diagnostics --memory
+    2. Identify the largest memory consumers:
+         $ qfctl diagnostics --memory --top 10
+    3. If a specific job is consuming excessive memory, restart it:
+         $ qfctl job restart --id [JOB_ID]
+    4. If memory usage is generally high, consider reducing max_threads
+       or buffer_size in the configuration.
+    5. Check for memory leaks in custom plugins:
+         $ qfctl diagnostics --memory --leak-check
+    6. If no leak is found, restart the QuantumFlow Engine service.
+  Recovery Time: 5-10 minutes
+
+ERROR CODE: QF-003
+  Name: Flux Capacitor Module Degradation
+  Severity: HIGH
+  Description: The Flux Capacitor Module (FCM), which manages quantum state
+    coherence in the QPUs, has degraded beyond acceptable parameters.
+  Likely Causes:
+    - FCM has reached end-of-life (typical lifespan: 18-24 months)
+    - Power supply voltage fluctuations degrading FCM components
+    - QPU thermal cycling causing solder joint fatigue on FCM
+  Official Resolution:
+    1. Confirm FCM degradation: $ qfctl diagnostics --fcm
+    2. Check FCM health metrics: $ qfctl diagnostics --fcm --detailed
+    3. If FCM health is below 60%, REPLACE THE FLUX CAPACITOR MODULE.
+       Part number: QF-FCM-2400 (order from QuantumFlow Parts Portal).
+    4. Installation requires trained technician and anti-static precautions.
+    5. After FCM replacement, run full calibration (see Section 4.4).
+    6. Verify system stability with 24-hour burn-in test:
+         $ qfctl diagnostics --burn-in --duration 24h
+  IMPORTANT: DO NOT attempt to "reset" or "recalibrate" a degraded FCM.
+  The module MUST be physically replaced. Software resets will not resolve
+  hardware degradation and may mask the underlying issue.
+  Recovery Time: 2-4 hours (including parts replacement and calibration)
+
+ERROR CODE: QF-004
+  Name: Network Partition Detected
+  Severity: HIGH
+  Description: The cluster has detected a network partition - one or more
+    nodes cannot communicate with the cluster leader.
+  Likely Causes:
+    - Network switch failure or misconfiguration
+    - Cable disconnection or damage
+    - Firewall rule blocking cluster communication port (9091)
+  Official Resolution:
+    1. Check network connectivity: $ qfctl network test --cluster
+    2. Verify all nodes are reachable:
+         $ qfctl cluster ping --all
+    3. Check switch status and cable connections.
+    4. Verify firewall rules allow traffic on port 9091.
+    5. If a node has been partitioned for more than 5 minutes, it will
+       automatically remove itself from the cluster. You will need to
+       re-add it: $ qfctl cluster add-node --address [IP] --role follower
+  Recovery Time: 5-15 minutes
+
+ERROR CODE: QF-005
+  Name: Storage Subsystem Degraded
+  Severity: HIGH
+  Description: One or more storage drives have failed or are showing
+    degraded performance.
+  Likely Causes:
+    - Physical drive failure
+    - RAID controller battery depleted
+    - Drive firmware bug causing intermittent errors
+  Official Resolution:
+    1. Check storage health: $ qfctl diagnostics --storage
+    2. Identify the failed drive:
+         $ qfctl diagnostics --storage --drives
+    3. If a drive has failed, replace it with an identical model.
+       Hot-swap is supported - no shutdown required.
+    4. After drive replacement, RAID will rebuild automatically.
+       Monitor progress: $ qfctl diagnostics --storage --rebuild-status
+    5. During RAID rebuild, expect reduced I/O performance (approximately
+       30% degradation).
+    6. If the RAID controller battery is depleted, replace the battery
+       module (Part: QF-RAID-BAT-01).
+  Recovery Time: 30 minutes (drive swap) + 2-8 hours (RAID rebuild)
+
+ERROR CODE: QF-006
+  Name: License Validation Failure
+  Severity: MEDIUM
+  Description: The system was unable to validate the installed license.
+  Likely Causes:
+    - License file corrupted or missing
+    - License has expired
+    - Hardware ID has changed (e.g., after component replacement)
+  Official Resolution:
+    1. Check license status: $ qfctl license verify
+    2. If the license has expired, renew it through the licensing portal.
+    3. If the hardware ID has changed, request a new license tied to
+       the new hardware ID.
+    4. Apply the new license: $ qfctl license apply --file [LICENSE_FILE]
+    5. The system will continue to operate in degraded mode (reduced
+       throughput) for up to 72 hours after license expiry to allow
+       time for renewal.
+  Recovery Time: Immediate after license application
+
+ERROR CODE: QF-007
+  Name: Calibration Drift Detected
+  Severity: MEDIUM
+  Description: The QPU calibration has drifted beyond acceptable tolerances.
+    Processing accuracy may be affected.
+  Likely Causes:
+    - Extended operation without recalibration (> 6 months)
+    - Significant ambient temperature changes
+    - After firmware update without recalibration
+  Official Resolution:
+    1. Check calibration status: $ qfctl calibrate --status
+    2. Schedule a maintenance window for recalibration.
+    3. Run the full three-step calibration procedure (see Section 4.4).
+    4. Verify calibration: $ qfctl calibrate --verify-all
+    5. If calibration fails repeatedly, the QPU may need replacement.
+       Contact QuantumFlow Support.
+  Recovery Time: 15-20 minutes
+
+ERROR CODE: QF-008
+  Name: Data Integrity Check Failure
+  Severity: CRITICAL
+  Description: The data integrity verification system has detected corrupted
+    or inconsistent data in the processing pipeline.
+  Likely Causes:
+    - Unplanned power loss during write operation
+    - Memory bit-flip (cosmic ray or hardware fault)
+    - Software bug in custom transformation plugin
+  Official Resolution:
+    1. Immediately stop all processing jobs:
+         $ qfctl job stop --all
+    2. Run the data integrity checker:
+         $ qfctl diagnostics --integrity --full
+    3. If corrupted data is identified, restore from the last known
+       good checkpoint:
+         $ qfctl data restore --checkpoint latest-good
+    4. Run memory diagnostics to rule out hardware fault:
+         $ qfctl diagnostics --memory --ecc-check
+    5. If ECC errors are found, replace the affected DIMM.
+    6. If the issue was caused by a custom plugin, disable it and
+       contact the plugin vendor.
+    7. Re-run integrity check after restoration:
+         $ qfctl diagnostics --integrity --verify
+  Recovery Time: 30-60 minutes depending on data volume
+
+ERROR CODE: QF-009
+  Name: Cluster Consensus Failure
+  Severity: HIGH
+  Description: The cluster was unable to reach consensus on leader election
+    or partition assignment.
+  Likely Causes:
+    - More than half of cluster nodes are unreachable (quorum lost)
+    - Clock skew between cluster nodes exceeds 500ms
+    - Cluster configuration mismatch between nodes
+  Official Resolution:
+    1. Verify quorum status: $ qfctl cluster quorum-status
+    2. If quorum is lost, bring failed nodes back online.
+    3. Check clock synchronization: $ qfctl cluster check-clocks
+    4. If clock skew is detected, ensure NTP is configured on all nodes.
+    5. Verify configuration consistency:
+         $ qfctl cluster config-check --compare-all
+    6. If configuration mismatches are found, push the leader's config
+       to all followers:
+         $ qfctl cluster config-sync --from-leader
+  Recovery Time: 5-15 minutes
+
+ERROR CODE: QF-010
+  Name: Plugin Load Failure
+  Severity: LOW
+  Description: A custom transformation plugin failed to load or initialize.
+  Likely Causes:
+    - Plugin binary incompatible with current QFE version
+    - Missing plugin dependencies
+    - Plugin configuration error
+  Official Resolution:
+    1. Check plugin status: $ qfctl plugin list --status
+    2. View plugin error details:
+         $ qfctl plugin logs --name [PLUGIN_NAME]
+    3. Verify plugin compatibility with current QFE version.
+    4. Reinstall the plugin: $ qfctl plugin install --name [PLUGIN_NAME]
+    5. If the issue persists, contact the plugin vendor.
+  Recovery Time: 5-10 minutes
+
+7.3 Common Operational Issues
+------------------------------
+
+Issue: Slow Processing Throughput
+  Symptoms: Events per second significantly below expected rates
+  Diagnosis:
+    1. Check QPU utilization: $ qfctl metrics qpu-usage
+    2. Check for thread contention: $ qfctl metrics thread-stats
+    3. Review buffer overflow statistics: $ qfctl metrics buffer-stats
+  Resolution:
+    - If QPU utilization is high, consider adding more nodes.
+    - If thread contention is high, reduce max_threads.
+    - If buffers are overflowing, increase buffer_size (up to 4096KB
+      recommended maximum for most workloads).
+
+Issue: High Latency
+  Symptoms: Processing latency exceeds SLA requirements
+  Diagnosis:
+    1. Check queue depth: $ qfctl metrics queue-depth
+    2. Check network latency: $ qfctl network latency-test
+    3. Check storage I/O latency: $ qfctl metrics disk-latency
+  Resolution:
+    - If queue depth is high, increase parallelism or add nodes.
+    - If network latency is high, check switch configuration.
+    - If disk latency is high, check storage health (see QF-005).
+
+Issue: Frequent Garbage Collection Pauses
+  Symptoms: Periodic spikes in processing latency
+  Diagnosis:
+    1. Check GC statistics: $ qfctl metrics gc-stats
+  Resolution:
+    - Increase gc_interval if pauses are too frequent but short.
+    - Decrease gc_interval if pauses are infrequent but long.
+    - Consider increasing memory to reduce GC pressure.
+
+================================================================================
+SECTION 8: SAFETY PROCEDURES
+================================================================================
+
+8.1 Personal Protective Equipment (PPE) Requirements
+------------------------------------------------------
+The following PPE is REQUIRED when performing any physical maintenance or
+installation of the QuantumFlow Engine:
+
+  1. Anti-static wrist strap (must be connected to chassis ground point)
+     - Required for: ALL physical maintenance tasks
+     - Specification: Resistance 1M ohm (+/- 10%)
+
+  2. Safety glasses (ANSI Z87.1 rated)
+     - Required for: Rack mounting, component replacement
+     - Protects against: Spring clips, debris from rack rails
+
+  3. Cut-resistant gloves (ANSI A4 rated minimum)
+     - Required for: Rack mounting, handling chassis
+     - Protects against: Sharp metal edges on chassis and rack rails
+
+  4. Steel-toe safety shoes
+     - Required for: Physical installation (chassis weighs up to 58 kg)
+     - Specification: ASTM F2413 compliant
+
+  5. Hearing protection (if sustained exposure)
+     - Required when: Working near running systems for > 30 minutes
+     - Rating: NRR 25 dB minimum
+     - Note: Running systems generate up to 55 dBA at maximum load
+
+8.2 Electrical Safety
+----------------------
+  - Always disconnect power before performing internal maintenance.
+  - Wait at least 5 minutes after power disconnection before opening
+    the chassis to allow capacitors to discharge.
+  - Use only the provided power cables rated for the system's power draw.
+  - Ensure the rack is properly grounded per local electrical codes.
+  - Never bypass the ground connection on the power cable.
+  - The internal power supply operates at 400V DC - lethal voltage.
+    Only certified technicians should perform power supply maintenance.
+
+8.3 Thermal Safety
+-------------------
+  - QPUs operate at 75 degrees Celsius during normal operation.
+  - Internal components may reach 85 degrees Celsius under peak load.
+  - Wait at least 15 minutes after shutdown before handling internal
+    components to allow cooling to safe touch temperature (< 45C).
+  - Never obstruct air intake (front) or exhaust (rear) vents.
+
+8.4 Emergency Shutdown Sequence
+--------------------------------
+In case of emergency (fire, water intrusion, electrical fault, earthquake),
+follow this 5-step emergency shutdown sequence:
+
+  STEP 1: Press the Emergency Power Off (EPO) button on the front panel.
+          This immediately cuts power to all processing units.
+          Location: Red recessed button, upper-right corner of front panel.
+
+  STEP 2: Disconnect both power cables from the rear panel.
+          This ensures complete electrical isolation.
+
+  STEP 3: If fire is involved, use only CO2 or clean agent fire
+          extinguisher (Class C). DO NOT use water-based extinguishers.
+
+  STEP 4: Evacuate the area and notify facility management.
+          Emergency contact: Facility Manager at ext. 5555.
+
+  STEP 5: Do not attempt to restart the system until it has been
+          inspected by a certified QuantumFlow technician and a
+          facility electrical inspection has been completed.
+
+8.5 Lifting and Handling
+-------------------------
+  - The QFE-300 weighs 58 kg. ALWAYS use two people when lifting.
+  - Use a mechanical lift for installations above 5U height.
+  - Follow your organization's safe lifting procedures.
+  - Keep the chassis level during transport to prevent component damage.
+
+================================================================================
+SECTION 9: MAINTENANCE SCHEDULE
+================================================================================
+
+9.1 Maintenance Overview
+-------------------------
+Regular maintenance is essential for reliable operation of the QuantumFlow
+Engine. Follow the schedule below to ensure optimal performance and longevity.
+
+9.2 Weekly Maintenance Tasks
+-----------------------------
+  Task W-1: Review System Logs
+    - Review warning and error logs from the past week
+    - Command: $ qfctl logs --since 7d --level warn
+    - Action: Investigate any recurring warnings
+
+  Task W-2: Check Storage Health
+    - Verify all drives are healthy
+    - Command: $ qfctl diagnostics --storage --quick
+    - Action: Schedule replacement for any drives showing degradation
+
+  Task W-3: Verify Backup Integrity
+    - Ensure configuration backups are current
+    - Command: $ qfctl config backup --verify
+
+9.3 Monthly Maintenance Tasks
+-------------------------------
+  Task M-1: Fan and Airflow Inspection
+    - Visually inspect all fans for debris accumulation
+    - Verify airflow paths are unobstructed
+    - Clean air filters if installed
+    - Command: $ qfctl diagnostics --fans --detailed
+
+  Task M-2: Firmware Update Check
+    - Check for available firmware updates
+    - Command: $ qfctl firmware check-update
+    - Apply updates during scheduled maintenance windows only
+
+  Task M-3: Performance Baseline Comparison
+    - Run the standard benchmark suite
+    - Command: $ qfctl benchmark --standard
+    - Compare results with the initial baseline (stored after installation)
+    - Investigate any performance degradation > 5%
+
+  Task M-4: Security Audit
+    - Review access logs for unauthorized access attempts
+    - Verify TLS certificates are not expiring within 60 days
+    - Command: $ qfctl security audit --comprehensive
+
+9.4 Quarterly Maintenance Tasks
+---------------------------------
+  Task Q-1: Full System Inspection
+    - Perform a comprehensive hardware inspection
+    - Check all cable connections for security
+    - Verify chassis mounting bolts are at specified torque (45 Nm)
+    - Inspect for any signs of corrosion or physical damage
+    - Document findings in the maintenance log
+
+  Task Q-2: Thermal Paste Inspection
+    - Check QPU thermal paste condition via thermal imaging
+    - Command: $ qfctl diagnostics --thermal --detailed
+    - If any QPU is running > 3 degrees Celsius above baseline,
+      schedule thermal paste replacement
+
+  Task Q-3: Network Performance Test
+    - Run comprehensive network tests between all cluster nodes
+    - Command: $ qfctl network benchmark --full
+    - Verify inter-node latency is within specification (< 0.5ms)
+
+  Task Q-4: Capacity Planning Review
+    - Review utilization trends for the quarter
+    - Command: $ qfctl metrics report --quarterly
+    - Plan for capacity additions if utilization exceeds 70% sustained
+
+9.5 Annual Maintenance Tasks
+------------------------------
+  Task A-1: Full System Recalibration
+    - Perform the complete three-step calibration procedure (Section 4.4)
+    - This requires a scheduled maintenance window of approximately 1 hour
+    - Must be performed by certified QuantumFlow technician
+    - IMPORTANT: Annual recalibration is MANDATORY to maintain warranty
+      coverage and ensure processing accuracy.
+
+  Task A-2: Power Supply Inspection
+    - Test both redundant power supplies under load
+    - Verify automatic failover between PSUs
+    - Check PSU fan operation
+    - Measure output voltages and verify within specification
+
+  Task A-3: Disaster Recovery Test
+    - Perform a full disaster recovery test
+    - Restore from backup to a test environment
+    - Verify all data and configuration is intact
+    - Document recovery time and any issues encountered
+
+  Task A-4: License Renewal
+    - Verify license expiration date
+    - Renew license at least 30 days before expiration
+    - Apply renewed license and verify
+
+9.6 Maintenance Log Requirements
+----------------------------------
+All maintenance activities must be documented in the maintenance log:
+  - Date and time of maintenance
+  - Technician name and certification number
+  - Tasks performed
+  - Findings and observations
+  - Parts replaced (if any)
+  - Post-maintenance verification results
+
+The maintenance log is stored at: /var/log/quantumflow/maintenance.log
+  $ qfctl maintenance log --add "[DESCRIPTION]"
+
+================================================================================
+SECTION 10: APPENDIX A - ERROR CODE QUICK REFERENCE
+================================================================================
+
+Code     | Severity | Name                           | Quick Fix
+---------|----------|--------------------------------|---------------------------
+QF-001   | CRITICAL | QPU Thermal Overload           | Reduce load, check fans
+QF-002   | HIGH     | Memory Allocation Failure      | Restart job, check config
+QF-003   | HIGH     | Flux Capacitor Degradation     | Replace FCM (QF-FCM-2400)
+QF-004   | HIGH     | Network Partition              | Check network, re-add node
+QF-005   | HIGH     | Storage Subsystem Degraded     | Replace failed drive
+QF-006   | MEDIUM   | License Validation Failure     | Renew/reapply license
+QF-007   | MEDIUM   | Calibration Drift              | Run full recalibration
+QF-008   | CRITICAL | Data Integrity Failure         | Stop jobs, restore data
+QF-009   | HIGH     | Cluster Consensus Failure      | Check quorum, sync clocks
+QF-010   | LOW      | Plugin Load Failure            | Reinstall plugin
+
+================================================================================
+SECTION 11: APPENDIX B - SPARE PARTS LIST
+================================================================================
+
+Part Number      | Description                    | QFE-100 | QFE-200 | QFE-300
+-----------------|--------------------------------|---------|---------|--------
+QF-FCM-2400      | Flux Capacitor Module          | 1       | 2       | 4
+QF-FAN-120       | 120mm Cooling Fan              | 4       | 6       | 12
+QF-PSU-2400      | 2400W Power Supply Unit        | 2       | 2       | 4
+QF-DIMM-64       | 64GB DDR5 DIMM                 | 1       | 4       | 8
+QF-SSD-2T        | 2TB NVMe SSD                   | 1       | 4       | 16
+QF-NET-SFP       | 10GbE SFP+ Transceiver         | 4       | 4       | 8
+QF-RAID-BAT-01   | RAID Controller Battery        | 1       | 1       | 2
+QF-RAIL-4U       | 4U Rail Kit                    | 1       | 1       | -
+QF-RAIL-8U       | 8U Rail Kit                    | -       | -       | 1
+QF-TP-01         | Thermal Paste Kit              | 1       | 1       | 1
+
+================================================================================
+SECTION 12: APPENDIX C - GLOSSARY
+================================================================================
+
+  CPE    - Core Processing Engine
+  DMA    - Direct Memory Access
+  DML    - Data Management Layer
+  EPO    - Emergency Power Off
+  FCM    - Flux Capacitor Module
+  HAL    - Hardware Abstraction Layer
+  IPMI   - Intelligent Platform Management Interface
+  NTP    - Network Time Protocol
+  NUMA   - Non-Uniform Memory Access
+  POST   - Power-On Self-Test
+  QPU    - Quantum Processing Unit
+  QFE    - QuantumFlow Engine
+  RAID   - Redundant Array of Independent Disks
+  TLS    - Transport Layer Security
+  WAL    - Write-Ahead Log
+
+================================================================================
+REVISION HISTORY
+================================================================================
+
+  Version | Date       | Author         | Changes
+  --------|------------|----------------|------------------------------------
+  1.0     | 2023-01-15 | Dr. Sarah Chen | Initial release
+  1.1     | 2023-06-01 | Dr. Sarah Chen | Added QFE-300 specifications
+  2.0     | 2024-01-10 | James Rodriguez| Major rewrite for v2.0 hardware
+  2.1     | 2024-04-15 | James Rodriguez| Updated calibration procedure
+  2.2     | 2024-08-01 | Alex Chen      | Added cluster management section
+  2.3     | 2025-01-15 | Maria Gonzalez | Updated error codes, added QF-009/010
+  2.4     | 2025-06-15 | Maria Gonzalez | Revised safety procedures, added PPE
+  2.4.1   | 2025-06-15 | Maria Gonzalez | Minor formatting corrections
+
+================================================================================
+                     END OF TECHNICAL MANUAL
+                  (c) 2025 QuantumFlow Systems Inc.
+                      All Rights Reserved
+================================================================================
