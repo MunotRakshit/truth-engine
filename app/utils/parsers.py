@@ -100,18 +100,29 @@ def parse_json_csv(file_path: str) -> list[DocumentChunk]:
             logger.warning("Empty JSON file: %s", file_path)
             return []
         data = json.loads(raw)
-        if not isinstance(data, list):
+        if isinstance(data, dict):
+            # Handle nested JSON: look for an array field (e.g. "logs", "tickets", "records")
+            for key, val in data.items():
+                if isinstance(val, list) and val and isinstance(val[0], dict):
+                    data = val
+                    break
+            else:
+                data = [data]
+        elif not isinstance(data, list):
             data = [data]
 
         for idx, ticket in enumerate(data):
-            ticket_id = ticket.get("ticket_id", f"unknown-{idx}")
-            issue = ticket.get("issue", ticket.get("description", ""))
+            ticket_id = ticket.get("ticket_id", ticket.get("id", f"unknown-{idx}"))
+            issue = ticket.get("issue", ticket.get("summary", ticket.get("description", "")))
+            description = ticket.get("description", "")
             resolution = ticket.get("resolution", "")
             status = ticket.get("resolution_status", ticket.get("status", ""))
             engineer = ticket.get("engineer", "")
             timestamp = ticket.get("timestamp", ticket.get("date", ""))
 
             content = f"Ticket {ticket_id}: {issue}"
+            if description and description != issue:
+                content += f". Details: {description}"
             if resolution:
                 content += f". Resolution: {resolution}"
             if status:
