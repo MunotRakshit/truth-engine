@@ -135,11 +135,11 @@ git clone https://github.com/your-username/truth-engine.git
 cd truth-engine
 
 # Create and activate virtual environment
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate    # On Windows: venv\Scripts\activate
 
 # Install dependencies
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 
 # Configure environment
 echo "GEMINI_API_KEY=your-gemini-api-key-here" > .env
